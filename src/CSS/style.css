@@ -18,6 +18,10 @@ h1 {
     margin-right: auto;
 }
 
+.code {
+    color: darkgreen;
+}
+
 ._webpack-logo {
     background-image: url(../assets/icon-square-big.png);
     background-size: cover;

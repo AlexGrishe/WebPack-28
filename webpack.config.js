@@ -1,6 +1,12 @@
 const path = require('path');
 const HTMLWebpackPlugin = require('html-webpack-plugin');
 const {CleanWebpackPlugin} = require('clean-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+
+const isDev = process.env.NODE_ENV === 'development';
+const isProd = !isDev;
+
 
 module.exports = {
     context: path.resolve(__dirname, 'src'),
@@ -10,7 +16,7 @@ entry: {
 stat: './statistics.js'
 },
     output: {
-        filename: "[name].[contenthash].bundle.js",
+        filename: "[name].[hash].bundle.js",
         path: path.resolve(__dirname, 'dist')
     },
     resolve: {
@@ -28,17 +34,39 @@ stat: './statistics.js'
             chunks: "all"
         }
     },
+    devServer: {
+            port: 4200,
+        hot: isDev,
+        contentBase: path.join(__dirname, 'src'),
+        watchContentBase: true
+    },
     plugins: [
         new HTMLWebpackPlugin({
             template: "./index.html"
         }),
-        new CleanWebpackPlugin()
+        new CleanWebpackPlugin(),
+        new CopyWebpackPlugin({
+            patterns: [
+                {
+                    from: path.resolve(__dirname, 'src/assets/monitor.png'),
+                    to: path.resolve(__dirname, 'dist')
+                }
+            ]
+        }),
+        new MiniCssExtractPlugin({
+            filename: '[name].[hash].js'
+        })
     ],
     module: {
         rules: [
             {
                 test: /\.css$/,
-                use: ['style-loader', 'css-loader']
+                use: [{
+                    loader: MiniCssExtractPlugin.loader,
+                options: {
+                        publicPath: ''
+                }
+                }, 'css-loader']
             },
             {
                 test: /\.(png|jpg|svg|gif)$/,
